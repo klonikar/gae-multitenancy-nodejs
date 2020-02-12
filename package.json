@@ -1,0 +1,41 @@
+{
+  "name": "appengine-datastore",
+  "description": "Sample for Google Cloud Datastore on Google App Engine.",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Google Inc.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleCloudPlatform/nodejs-docs-samples.git"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "start_local": "env NODE_ENV=development node app.js",
+    "start_local_cloud_datastore": "env NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS=<YOUR_PRIVATE_KEYFILE> node app.js",
+    "start_datastore_emulator": "gcloud beta emulators datastore start",
+    "system-test": "repo-tools test app",
+    "test": "npm run system-test"
+  },
+  "dependencies": {
+    "@google-cloud/connect-datastore": "^4.0.0",
+    "@google-cloud/datastore": "^4.0.0",
+    "express": "^4.16.4",
+    "express-session": "^1.17.0"
+  },
+  "devDependencies": {
+    "@google-cloud/nodejs-repo-tools": "^3.3.0"
+  },
+  "cloud-repo-tools": {
+    "test": {
+      "app": {
+        "msg": "Last 10 visits:"
+      }
+    },
+    "requiresKeyFile": true,
+    "requiresProjectId": true
+  }
+}
