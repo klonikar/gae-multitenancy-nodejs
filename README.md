@@ -25,9 +25,10 @@ and run
     $(gcloud beta emulators datastore env-init)
     npm start_local
 
-To run locally but against cloud datastore, edit the package.json file and replace <YOUR_PRIVATE_KEYFILE> with your own datastore key file. Then
+To run locally but against cloud datastore,
 
-    npm start_local_cloud_datastore
+    $(gcloud beta emulators datastore env-unset)
+    npm start
 
 Testing on local project: [test_apis.html](http://localhost:8080/test_apis.html).
 
