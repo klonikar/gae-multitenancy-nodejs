@@ -113,3 +113,31 @@ function getEmployee() {
     });
     return false;    
 }
+
+function createFaceFeatures() { 
+    var dataStr = document.getElementById("faceFeaturesSpec").value;
+    invokePostAPI("/api/v1/faceFeatures/", dataStr, true, function() {
+        if(this.readyState == 4 && this.status == 200) {
+            document.getElementById("updateStatus").innerHTML = this.responseText;
+        }
+        else if(this.readyState == 4){
+            document.getElementById("updateStatus").innerHTML = this.responseText;
+            //alert("Error in invoking API. please retry.");
+        }
+    });
+    return false;
+
+}
+
+function getFaceFeatures() {
+    invokeGetAPI("/api/v1/faceFeatures/", true, function() {
+        if(this.readyState == 4 && this.status == 200) {
+            document.getElementById("updateStatus").innerHTML = this.responseText;
+        }
+        else if(this.readyState == 4){
+            document.getElementById("updateStatus").innerHTML = this.responseText;
+            //alert("Error in invoking API. please retry.");
+        }
+    });
+    return false;    
+}

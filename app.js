@@ -137,7 +137,9 @@ app.get('/api/v1/logout', (req, res, next) => {
   req.session.globalAdmin = "false";
   req.session.enterpriseAdmin = "false";
   req.session.companyName = "";
-  res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
+  request.session.destroy(function() {
+    res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
+  });  
 });
 
 app.post('/api/v1/logout', (req, res, next) => {
@@ -146,7 +148,9 @@ app.post('/api/v1/logout', (req, res, next) => {
   req.session.globalAdmin = "false";
   req.session.enterpriseAdmin = "false";
   req.session.companyName = "";
-  res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
+  request.session.destroy(function() {
+    res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
+  });
 });
 
 app.post('/api/v1/enterprise', (req, res, next) => {
@@ -328,6 +332,60 @@ app.get('/api/v1/employee', (req, res, next) => {
 
   //console.log('Running query', query);
 
+  datastore.runQuery(query, (err, entities, info) => {
+    if(err) {
+      res.status(500).set('Content-Type', 'application/json').send({"message": "Unknown error ocurred. Internal Server Error", error: err}).end();
+    }
+    else {
+      res.status(200).set('Content-Type', 'application/json').send({response: entities}).end();
+    }
+  });
+
+});
+
+app.post('/api/v1/faceFeatures', (req, res, next) => {
+  if(!req.session || !req.session.userName) {
+    res.status(401).set('Content-Type', 'application/json').send({message: "User not logged in."}).end();
+    return;    
+  }
+  if(!req.session.companyName || req.session.enterpriseAdmin == "true" ) {
+    res.status(404).set('Content-Type', 'application/json').send({message: "Not applicble to admin."}).end();
+    return;    
+  }
+  let data = req.body;
+  let companyName = req.session.companyName;
+  let createdDate = Date.now();
+  let entities = data.map((a) => {
+    return { key: datastore.key({ namespace: companyName, path: ['FaceFeatures']}), 
+               data: { name: a.name, features: a.features, gender: a.gender, createdDate: createdDate, creator: req.session.userName }
+            }
+           
+  });
+  datastore.save(entities, (err, apiResponse) => {
+    if(err) {
+      res.status(500).set('Content-Type', 'application/json').send({"message": "Unknown error ocurred. Internal Server Error", error: err}).end();
+    }
+    else {
+      res.status(200).set('Content-Type', 'application/json').send({response: entities.map((entity) => {return entity.data.name; })}).end();
+    }
+  });
+});
+
+app.get('/api/v1/faceFeatures', (req, res, next) => {
+  if(!req.session || !req.session.userName) {
+    res.status(401).set('Content-Type', 'application/json').send({message: "User not logged in."}).end();
+    return;    
+  }
+  if(!req.session.companyName || req.session.enterpriseAdmin == "true" ) {
+    res.status(404).set('Content-Type', 'application/json').send({message: "Not applicble to admin."}).end();
+    return;    
+  }
+  let namespace = req.session.companyName;
+  let query = datastore
+    .createQuery(namespace, 'FaceFeatures')
+    .order('createdDate', {descending: true})
+    //.limit(10)
+    ;
   datastore.runQuery(query, (err, entities, info) => {
     if(err) {
       res.status(500).set('Content-Type', 'application/json').send({"message": "Unknown error ocurred. Internal Server Error", error: err}).end();

@@ -73,9 +73,19 @@ margin-left: 1em;
         </h3>
         <textarea id="employeeSpec" rows="7" cols="70">{"userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
         </textarea>
-        <button id="createEnterprise" class="btn" onclick="createEmployee();" >Create/Update Employee</button>
+        <button id="createEmployee" class="btn" onclick="createEmployee();" >Create/Update Employee</button>
         <input id="employeeId" style="height:3em;vertical-align:top;" value="" placeholder="Employee id" title="Enter Employee Id" type="text"/>
-        <button id="getEnterprise" class="btn" onclick="getEmployee();" >Get Employee</button>
+        <button id="getEmployee" class="btn" onclick="getEmployee();" >Get Employee</button>
+    </div>
+
+    <div>
+        <h3>
+            Test Face Features Creation
+        </h3>
+        <textarea id="faceFeaturesSpec" rows="7" cols="70">[{"features":[11.3,244.2],"gender":"M","name":"KL"},{"features":[34.2,355.1],"name":"PL","gender":"F"}]
+        </textarea>
+        <button id="createFaceFeatures" class="btn" onclick="createFaceFeatures();" >Create Face Features</button>
+        <button id="getFaceFeatures" class="btn" onclick="getFaceFeatures();" >Get Face Features</button>
     </div>
 
     <div id="updateStatus" style="background-color: grey;"></div>
