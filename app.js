@@ -137,7 +137,7 @@ app.get('/api/v1/logout', (req, res, next) => {
   req.session.globalAdmin = "false";
   req.session.enterpriseAdmin = "false";
   req.session.companyName = "";
-  request.session.destroy(function() {
+  req.session.destroy(function() {
     res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
   });  
 });
@@ -148,7 +148,7 @@ app.post('/api/v1/logout', (req, res, next) => {
   req.session.globalAdmin = "false";
   req.session.enterpriseAdmin = "false";
   req.session.companyName = "";
-  request.session.destroy(function() {
+  req.session.destroy(function() {
     res.status(200).set('Content-Type', 'application/json').send({message: `User ${userName} logged out.`}).end();
   });
 });
