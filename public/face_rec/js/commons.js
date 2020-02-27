@@ -38,7 +38,7 @@ function renderNavBar(navbarId, exampleUri) {
   const examples = [
     {
       uri: 'login.html',
-      name: 'Login'
+      name: 'Face Recogniton Login'
     },
     {
       uri: 'faceExtraction.html',

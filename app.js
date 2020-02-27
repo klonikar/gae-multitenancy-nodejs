@@ -357,7 +357,7 @@ app.post('/api/v1/faceFeatures', (req, res, next) => {
   let createdDate = Date.now();
   let entities = data.map((a) => {
     return { key: datastore.key({ namespace: companyName, path: ['FaceFeatures']}), 
-               data: { name: a.name, features: a.features, gender: a.gender, createdDate: createdDate, creator: req.session.userName }
+               data: { name: a.name, features: a.features, gender: a.gender, gp: a.gp, age: a.age, createdDate: createdDate, creator: req.session.userName }
             }
            
   });
