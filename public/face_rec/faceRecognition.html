@@ -4,6 +4,7 @@
   <script src="js/face-api.js"></script>
   <script src="js/commons.js"></script>
   <script src="js/faceDetectionControls.js"></script>
+  <script src="js/faceMatcherBuilder.js"></script>
   <script src="/js/poster_util.js"></script>
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -22,15 +23,6 @@
     </div>
     <div id="facesContainer"></div>
     <div id="alignedFacesContainer"></div>
-
-      <button
-        class="waves-effect waves-light btn"
-        onclick="registerFaces()"
-        style="display: none"
-        id='registerFaces'
-      >
-        Register Faces
-      </button>
 
     <div class="row side-by-side">
       <!-- face_detector_selection_control -->
@@ -150,30 +142,27 @@
       }
 
       detections = await faceapi.detectAllFaces(inputImgEl, options).withFaceLandmarks().withFaceDescriptors().withAgeAndGender()
+      /*
       const alignedDetections = detections.map((det) => det.alignedRect )
       const originalDetections = detections.map((det) => det.detection )
       const faceImages = await faceapi.extractFaces(inputImgEl, originalDetections)
       const alignedFaceImages = await faceapi.extractFaces(inputImgEl, alignedDetections)
 
       displayExtractedFaces(faceImages, alignedFaceImages)
-    }
+      */
+      const canvas = $('#overlay').get(0)
+      faceapi.matchDimensions(canvas, $('#inputImg').get(0))
+      // resize detection and landmarks in case displayed image is smaller than
+      // original size
+      const resizedResults = faceapi.resizeResults(detections, inputImgEl)
 
-    function createNameImagePair(imgOrCanvas, idx) {
-      const holderElem = document.createElement('span');
-      holderElem.id = 'imgNamePair_' + idx;
-      //holderElem.className = 'row side-by-side';
-      imgOrCanvas.style = 'margin-left: 10px';
-      const nameElem = document.createElement('input');
-      nameElem.type = 'text';
-      nameElem.className = 'bold';
-      nameElem.placeholder = "Name";
-      nameElem.style = 'width: 50px; margin-left: -50px;vertical-align: text-top';
-      nameElem.id = 'imgName_' + idx;
-      imgOrCanvas.id = 'faceImg_' + idx;
-      holderElem.appendChild(imgOrCanvas);
-      holderElem.appendChild(nameElem);
+      resizedResults.forEach(({ detection, descriptor }) => {
+        const label = faceMatcher.findBestMatch(descriptor).toString()
+        const options = { label }
+        const drawBox = new faceapi.draw.DrawBox(detection.box, options)
+        drawBox.draw(canvas)
+      })
 
-      return holderElem;
     }
 
     function displayExtractedFaces(faceImages, alignedFaceImages) {
@@ -188,41 +177,17 @@
       $('#registerFaces').css('display', 'flex')
     }
 
-    function registerFaces() {
-      let faceElems = $('#alignedFacesContainer span');
-      let facesToBeRegistered = [];
-
-      for(let i = 0;i < faceElems.length;i++) {
-        if(faceElems.get(i).childNodes[1].value) {
-          facesToBeRegistered.push({name: faceElems.get(i).childNodes[1].value, features: Array.from(detections[i].descriptor),
-                                    gender: detections[i].gender, gp: detections[i].genderProbability, age: Math.round(detections[i].age)});
-        }
-      }
-      //console.log('registering faces:', facesToBeRegistered);
-      invokePostAPI("/api/v1/faceFeatures/", JSON.stringify(facesToBeRegistered), true, function() {
-        if(this.readyState == 4 && this.status == 200) {
-            document.getElementById("updateStatus").innerHTML = this.responseText;
-        }
-        else if(this.readyState == 4){
-            document.getElementById("updateStatus").innerHTML = this.responseText;
-            //alert("Error in invoking API. please retry.");
-        }
-      });
-    }
-
     async function run() {
       // load face detection model
       await changeFaceDetector(selectedFaceDetector)
       await faceapi.loadFaceLandmarkModel('weights')
       await faceapi.loadFaceRecognitionModel('weights')
       await faceapi.loadAgeGenderModel('weights')
-
-      // start processing image
-      updateResults()
+      createFaceMatcher(updateResults)
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'faceExtraction.html')
+      renderNavBar('#navbar', 'faceRecognition.html')
       $('#imgUrlInput').get(0).value = $('#inputImg').get(0).src
       initFaceDetectionControls()
       run()
