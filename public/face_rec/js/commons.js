@@ -20,7 +20,7 @@ function requestExternalImage(url, updateElemId, postProcFunction) {
     var dataURL = canvas.toDataURL("image/png");
 
     $(updateElemId).get(0).src = dataURL
-    postProcFunction()
+    setTimeout(() => postProcFunction())
   }
   img.src = url || $('#imgUrlInput').val();
 }

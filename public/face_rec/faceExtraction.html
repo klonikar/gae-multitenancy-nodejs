@@ -17,7 +17,7 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <img id="inputImg" src="https://bcsiriuschen.github.io/CARC/fig_example.jpg" style="max-width: 800px;" />
+      <img id="inputImg" style="max-width: 800px;" />
       <canvas id="overlay" />
     </div>
     <div id="facesContainer"></div>
@@ -53,7 +53,7 @@
       <!-- image_selection_control -->
       <div class="row">
         <label for="imgUrlInput">Get image from URL:</label>
-        <input id="imgUrlInput" type="text" class="bold">
+        <input id="imgUrlInput" type="text" class="bold" value="https://bcsiriuschen.github.io/CARC/fig_example.jpg">
       </div>
       <button
         class="waves-effect waves-light btn"
@@ -145,6 +145,9 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
+      const canvas = $('#overlay').get(0)
+      faceapi.matchDimensions(canvas, $('#inputImg').get(0))
+
       if (!isFaceDetectionModelLoaded() || ! inputImgEl.width || !inputImgEl.height) {
         return
       }
@@ -223,7 +226,6 @@
 
     $(document).ready(function() {
       renderNavBar('#navbar', 'faceExtraction.html')
-      $('#imgUrlInput').get(0).value = $('#inputImg').get(0).src
       initFaceDetectionControls()
       run()
     })
