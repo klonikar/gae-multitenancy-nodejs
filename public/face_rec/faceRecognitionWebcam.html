@@ -42,6 +42,7 @@
         <label>Select Face Detector</label>
       </div>
       <!-- face_detector_selection_control -->
+    </div>
 
       <!-- ssd_mobilenetv1_controls -->
       <span id="ssd_mobilenetv1_controls">
@@ -100,7 +101,7 @@
         </div>
       </span>
       <!-- tiny_face_detector_controls -->
-    </div>
+
       <!-- fps_meter -->
       <div id="fps_meter" class="row side-by-side">
         <div>
@@ -123,14 +124,6 @@
     var moz=false;
 
     let detections = null;
-    let forwardTimes = []
-
-    function updateTimeStats(timeInMs) {
-      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
-      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
-      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
-    }
 
     async function updateResults() {
       const videoEl = $('#inputVideo').get(0)

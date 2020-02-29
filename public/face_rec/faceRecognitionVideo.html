@@ -17,9 +17,8 @@
     <div class="progress" id="loader">
       <div class="indeterminate"></div>
     </div>
-    <h4> Not yet implemented </h4>
     <div style="position: relative" class="margin">
-      <img id="inputImg" src="https://bcsiriuschen.github.io/CARC/fig_example.jpg" style="max-width: 800px;" />
+      <video id="inputVideo" autoplay muted playsinline style="max-width: 800px" crossorigin="anonymous" ></video>
       <canvas id="overlay" />
     </div>
     <div id="facesContainer"></div>
@@ -36,21 +35,22 @@
       </div>
       <!-- face_detector_selection_control -->
 
+<!--
       <div class="row">
-        <label>Upload Image:</label>
+        <label>Upload Video:</label>
         <div>
-          <input id="imgUploadInput" type="file" class="bold" onchange="uploadImage()" accept=".jpg, .jpeg, .png">
+          <input id="videoUploadInput" type="file" class="bold" onchange="uploadVideo()" accept=".mp4, .mov">
         </div>
       </div>
-
+-->
       <!-- image_selection_control -->
       <div class="row">
-        <label for="imgUrlInput">Get image from URL:</label>
-        <input id="imgUrlInput" type="text" class="bold">
+        <label for="videoUrlInput">Get Video from URL:</label>
+        <input id="videoUrlInput" type="text" class="bold" value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4">
       </div>
       <button
         class="waves-effect waves-light btn"
-        onclick="loadImageFromUrl()"
+        onclick="loadVideoFromUrl()"
       >
         Ok
       </button>
@@ -114,6 +114,17 @@
       </div>
     </span>
     <!-- tiny_face_detector_controls -->
+  
+      <!-- fps_meter -->
+      <div id="fps_meter" class="row side-by-side">
+        <div>
+          <label for="time">Time:</label>
+          <input disabled value="-" id="time" type="text" class="bold">
+          <label for="fps">Estimated Fps:</label>
+          <input disabled value="-" id="fps" type="text" class="bold">
+        </div>
+      </div>
+      <!-- fps_meter -->
 
     <div id="updateStatus" style="background-color: grey;"></div>
 
@@ -123,39 +134,42 @@
 
     let detections = null;
 
-    function loadImageFromUrl(url) {
-      requestExternalImage(url, '#inputImg', updateResults)
+    function loadVideoFromUrl(url) {
+      $('#inputVideo').get(0).src = $('#videoUrlInput').val();
+      updateResults()
     }
 
-    async function uploadImage(e) {
-      const imgFile = $('#imgUploadInput').get(0).files[0]
-      const img = await faceapi.bufferToImage(imgFile)
-      $('#inputImg').get(0).src = img.src
+    // TODO: Not sure how to set local file to video element src
+    async function uploadVideo(e) {
+      const videoFile = $('#videoUploadInput').get(0).files[0]
+      const vdo = await faceapi.bufferToImage(imgFile)
+      $('#inputVideo').get(0).src = vdo.src
       updateResults()
     }
 
     async function updateResults() {
-      const inputImgEl = $('#inputImg').get(0)
+      const videoEl = $('#inputVideo').get(0)
       const options = getFaceDetectorOptions()
 
-      if (!isFaceDetectionModelLoaded() || ! inputImgEl.width || !inputImgEl.height) {
-        return
-      }
+      if(!videoEl.currentTime || videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+        return setTimeout(() => updateResults())
 
-      detections = await faceapi.detectAllFaces(inputImgEl, options).withFaceLandmarks().withFaceDescriptors().withAgeAndGender()
+      const ts = Date.now()
+      detections = await faceapi.detectAllFaces(videoEl, options).withFaceLandmarks().withFaceDescriptors().withAgeAndGender()
+      updateTimeStats(Date.now() - ts)
       /*
       const alignedDetections = detections.map((det) => det.alignedRect )
       const originalDetections = detections.map((det) => det.detection )
-      const faceImages = await faceapi.extractFaces(inputImgEl, originalDetections)
-      const alignedFaceImages = await faceapi.extractFaces(inputImgEl, alignedDetections)
+      const faceImages = await faceapi.extractFaces(videoEl, originalDetections)
+      const alignedFaceImages = await faceapi.extractFaces(videoEl, alignedDetections)
 
       displayExtractedFaces(faceImages, alignedFaceImages)
       */
       const canvas = $('#overlay').get(0)
-      faceapi.matchDimensions(canvas, $('#inputImg').get(0))
+      const dims = faceapi.matchDimensions(canvas, videoEl, true)
       // resize detection and landmarks in case displayed image is smaller than
       // original size
-      const resizedResults = faceapi.resizeResults(detections, inputImgEl)
+      const resizedResults = faceapi.resizeResults(detections, dims)
 
       resizedResults.forEach(({ detection, descriptor }) => {
         const label = faceMatcher.findBestMatch(descriptor).toString()
@@ -163,12 +177,12 @@
         const drawBox = new faceapi.draw.DrawBox(detection.box, options)
         drawBox.draw(canvas)
       })
-
+      setTimeout(() => updateResults())
     }
 
     function displayExtractedFaces(faceImages, alignedFaceImages) {
       const canvas = $('#overlay').get(0)
-      faceapi.matchDimensions(canvas, $('#inputImg').get(0))
+      faceapi.matchDimensions(canvas, $('#inputVideo').get(0))
 
       //$('#facesContainer').empty()
       //faceImages.forEach((canvas, i) => $('#facesContainer').append(createNameImagePair(canvas, i)))

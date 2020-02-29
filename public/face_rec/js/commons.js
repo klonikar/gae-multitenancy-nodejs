@@ -1,3 +1,12 @@
+let forwardTimes = []
+
+function updateTimeStats(timeInMs) {
+  forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+  const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+  $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+  $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
+}
+
 function requestExternalImage(url, updateElemId, postProcFunction) {
   var img = new Image()
   img.crossOrigin = "anonymous";
