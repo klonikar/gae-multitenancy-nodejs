@@ -166,7 +166,7 @@
       displayExtractedFaces(faceImages, alignedFaceImages)
       */
       const canvas = $('#overlay').get(0)
-      const dims = faceapi.matchDimensions(canvas, videoEl, true)
+      const dims = faceapi.matchDimensions(canvas, {width: videoEl.offsetWidth, height: videoEl.offsetHeight}, false)
       // resize detection and landmarks in case displayed image is smaller than
       // original size
       const resizedResults = faceapi.resizeResults(detections, dims)
