@@ -187,7 +187,14 @@
       //faceImages.forEach((canvas, i) => $('#facesContainer').append(createNameImagePair(canvas, i)))
 
       $('#alignedFacesContainer').empty()
-      alignedFaceImages.forEach((canvas, i) => $('#alignedFacesContainer').append(createNameImagePair(canvas, i)))
+      alignedFaceImages.forEach((canvas, i) => {
+        let resizedCanvas = document.createElement("canvas");
+        let resizedContext = resizedCanvas.getContext("2d");
+        resizedCanvas.height = 100;
+        resizedCanvas.width = 100;
+        resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+        $('#alignedFacesContainer').append(createNameImagePair(resizedCanvas, i))
+      });
       $('#registerFaces').css('display', 'flex')
     }
 
