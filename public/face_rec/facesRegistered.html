@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="js/face-api.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/faceDetectionControls.js"></script>
+  <script src="js/faceMatcherBuilder.js"></script>
+  <script src="/js/poster_util.js"></script>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <style>
+    .faceDiv {
+      border-style: solid;
+      border-width: medium;
+      border-color: darkturquoise;
+    }
+
+    .faceDetailsText {
+      font-size: medium;
+      font-family: cursive;
+    }
+
+    .faceDetailsSpan {
+      border-style: dotted;
+      border-width: thin;
+      border-color: coral;
+      display: inline-block;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+    </div>
+
+    <div id="registeredFaces" class="row side-by-side">
+      <!-- face_detector_selection_control -->
+
+      <!-- image_selection_control -->
+    </div>
+
+    <div id="updateStatus" style="background-color: grey;"></div>
+
+  </div>
+
+  <script>
+
+    function run() {
+      invokeGetAPI("/api/v1/faceFeatures/", true, function() {
+        
+        if(this.readyState == 4 && this.status == 200) {
+          let respObj = JSON.parse(this.responseText)
+          let faceFeatureMap = new Map()
+          respObj.response.forEach(entry => {
+              let entryData = {gender: entry.gender, gp: entry.gp, age: entry.age, imgData: entry.imgData, model: entry.model, creator: entry.creator, createdDate: entry.createdDate};
+              if(faceFeatureMap.has(entry.name)) {
+                  //console.log(entry.name + " exists.")
+                  faceFeatureMap.get(entry.name).push(entryData)
+              }
+              else {
+                  //console.log(entry.name + " does not exist.")
+                  faceFeatureMap.set(entry.name, [])
+                  faceFeatureMap.get(entry.name).push(entryData)
+              }
+          });
+
+          let registeredFacesDiv = $('#registeredFaces').get(0);
+          faceFeatureMap.forEach((v, k) => { 
+            let faceDiv = document.createElement('div');
+            let faceNameH3 = document.createElement('h3');
+            faceNameH3.appendChild(document.createTextNode(k));
+            faceDiv.appendChild(faceNameH3);
+            faceDiv.className = 'faceDiv';
+            v.forEach((f) => {
+              let img = new Image();
+              img.src = f.imgData;
+              let faceSpan = document.createElement('span');
+              faceSpan.className = 'faceDetailsSpan';
+              let imgCaption = document.createElement('h4');
+              imgCaption.appendChild(document.createTextNode('Age: ' + f.age + ', Gender: ' + f.gender));
+              imgCaption.className = 'faceDetailsText';
+              faceSpan.appendChild(imgCaption);
+              faceSpan.appendChild(img);
+              faceDiv.appendChild(faceSpan);
+            });
+            registeredFacesDiv.appendChild(faceDiv);
+          });
+        }
+        else if(this.readyState == 4){
+            let respObj = JSON.parse(this.responseText)
+            document.getElementById("updateStatus").innerHTML = "Failed to retrieve registered faces: " + respObj.message + ", error: " + respObj.error;
+            //alert("Error in invoking API. please retry.");
+        }
+      });
+
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'facesRegistered.html')
+      run()
+    })
+  </script>
+</body>
+</html>

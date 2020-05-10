@@ -54,6 +54,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Extract and Register Faces'
     },
     {
+      uri: 'facesRegistered.html',
+      name: 'View Registered Faces'
+    },
+    {
       uri: 'faceRecognition.html',
       name: 'Face Recognition Images'
     },

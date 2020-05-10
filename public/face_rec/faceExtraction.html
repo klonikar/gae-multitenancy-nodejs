@@ -197,8 +197,11 @@
 
       for(let i = 0;i < faceElems.length;i++) {
         if(faceElems.get(i).childNodes[1].value) {
+          let imgCanvas = faceElems.get(i).childNodes[0];
+          let imgData = imgCanvas.toDataURL('image/jpeg', 0.2);
           facesToBeRegistered.push({name: faceElems.get(i).childNodes[1].value, features: Array.from(detections[i].descriptor),
-                                    gender: detections[i].gender, gp: detections[i].genderProbability, age: Math.round(detections[i].age)});
+                                    gender: detections[i].gender, gp: detections[i].genderProbability, age: Math.round(detections[i].age), 
+                                    imgData: imgData, model: 'faceapi', }); // model can be faceapi or deepinsight or any other model
         }
       }
       //console.log('registering faces:', facesToBeRegistered);

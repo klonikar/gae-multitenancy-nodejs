@@ -26,6 +26,6 @@ async function createFaceMatcher(responseCallback) {
           document.getElementById("updateStatus").innerHTML = "Failed to retrieve registered faces: " + respObj.message + ", error: " + respObj.error;
           //alert("Error in invoking API. please retry.");
       }
-  });
+    });
   
 }
