@@ -82,6 +82,7 @@
             v.forEach((f) => {
               let img = new Image();
               img.src = f.imgData;
+              console.log("length of image data: " + f.imgData.length);
               let faceSpan = document.createElement('span');
               faceSpan.className = 'faceDetailsSpan';
               let imgCaption = document.createElement('h4');
